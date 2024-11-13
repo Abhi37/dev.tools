@@ -1,0 +1,21 @@
+.header-toolbar {
+    display: flex;
+    justify-content: center; /* Center the content */
+    align-items: center;
+    gap: 16px; /* Adjust as necessary */
+  }
+  
+  .header-tabs {
+    flex-grow: 1;
+    display: flex;
+    justify-content: left;
+  }
+  
+  .header-title {
+    margin-right: auto; /* Pushes the title to the left */
+  }
+  
+  .header-navigation {
+    margin-left: auto; /* Pushes the navigation items to the right */
+  }
+  

@@ -3,19 +3,44 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@codemirror/lang-html": "^6.4.9",
+    "@codemirror/lang-javascript": "^6.2.2",
+    "@codemirror/lang-json": "^6.0.1",
+    "@codemirror/lang-xml": "^6.1.0",
+    "@codemirror/language": "^6.10.3",
+    "@codemirror/lint": "^6.8.2",
+    "@codemirror/state": "^6.4.1",
+    "@codemirror/view": "^6.34.2",
+    "@craco/craco": "^7.1.0",
+    "@emotion/react": "^11.13.3",
+    "@emotion/styled": "^11.13.0",
+    "@j3lte/react-xml-view": "^1.6.0",
+    "@mui/icons-material": "^6.1.6",
+    "@mui/material": "^6.1.6",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
+    "@uiw/react-codemirror": "^4.23.6",
+    "@uiw/react-json-view": "^2.0.0-alpha.30",
+    "buffer": "^6.0.3",
+    "crypto-browserify": "^3.12.1",
+    "process": "^0.11.10",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-router-dom": "^6.27.0",
     "react-scripts": "5.0.1",
-    "web-vitals": "^2.1.4"
+    "react-xml-viewer": "^2.0.4",
+    "stream-browserify": "^3.0.0",
+    "timers-browserify": "^2.0.12",
+    "web-vitals": "^2.1.4",
+    "xml2js": "^0.6.2"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "start": "craco start",
+    "build": "craco build",
+    "test": "craco test",
+    "eject": "react-scripts eject",
+    "clean": "rimraf ./build"
   },
   "eslintConfig": {
     "extends": [
@@ -34,5 +59,17 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "customSettings": {
+    "showAds": false
+  },
+  "devDependencies": {
+    "eslint-config-react-app": "^7.0.1",
+    "eslint-plugin-react": "^7.37.2",
+    "rimraf": "^6.0.1"
+  },
+  "browser": {
+    "path": "path-browserify",
+    "util": "util/"
   }
 }

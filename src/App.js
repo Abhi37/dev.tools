@@ -1,24 +1,31 @@
-import logo from './logo.svg';
-import './App.css';
+// App.js
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import HomePage from './mainComponents/Home';
+import JSONFormatterPage from './formatters/JSONFormatter';
+import XMLFormatterPage from './formatters/XMLFormatter'
+import XMLtoJSONFormatterPage from './formatters/XMLtoJSONFormatter'
+import CodeFormatter from './formatters/CodeFormatter'
+import { ThemeProvider } from './mainComponents/ThemeContext';
+
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <ThemeProvider>
+      <Router>
+        <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/json-formatter" element={<JSONFormatterPage />} />
+            <Route path="/xml-formatter" element={<XMLFormatterPage />} />
+            <Route path="/xmltojson-formatter" element={<XMLtoJSONFormatterPage />} />
+            <Route path="/code-formatter" element={<CodeFormatter />} />
+            {/* Fallback Route for unmatched paths */}
+            <Route path="*" element={<div>404 Not Found</div>} />
+          </Routes>
+        </div>
+      </Router>
+    </ThemeProvider>
   );
 }
 
