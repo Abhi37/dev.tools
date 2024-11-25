@@ -2,14 +2,14 @@
 <html>
   <head>
     <script>
-      // Capture the full path requested
-      var redirectTo = '/dev.tools' + window.location.pathname + window.location.search;
+      // Check if we are already at the root or if this is a new redirection
+      if (!window.location.search.includes('redirected=true')) {
+        // Capture the original path
+        const originalPath = window.location.pathname;
 
-      // Store the original path in localStorage (for React to access)
-      localStorage.setItem('redirectPath', window.location.pathname);
-
-      // Redirect to the root index.html for React to handle the path
-      window.location.replace('/dev.tools');
+        // Redirect to the index.html and include a flag to prevent further redirects
+        window.location.replace('/dev.tools/?redirect=' + encodeURIComponent(originalPath) + '&redirected=true');
+      }
     </script>
   </head>
   <body>
