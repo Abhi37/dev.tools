@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script>
+      // Capture the full path requested
+      var redirectTo = '/dev.tools' + window.location.pathname + window.location.search;
+
+      // Store the original path in localStorage (for React to access)
+      localStorage.setItem('redirectPath', window.location.pathname);
+
+      // Redirect to the root index.html for React to handle the path
+      window.location.replace('/dev.tools');
+    </script>
+  </head>
+  <body>
+    <p>Redirecting...</p>
+  </body>
+</html>
