@@ -11,7 +11,12 @@ import CloseFullscreenIcon from '@mui/icons-material/CloseFullscreen';
 import { TextField } from '@mui/material';
 import { useTheme } from '../mainComponents/ThemeContext';
 import xml2js from 'xml2js'; 
+import { Helmet } from 'react-helmet';
 import { prettifyXML, filterJsonBySearchTerm } from '../utils/XMLUtils';
+import CodeIcon from '@mui/icons-material/Code';
+import JsonIcon from '@mui/icons-material/Description'; 
+import CompareIcon from '@mui/icons-material/CompareArrows';
+import XmlIcon from '@mui/icons-material/Schema'
 
 const XMLToJSONFormatterPage = () => {
   const { theme } = useTheme();
@@ -75,7 +80,13 @@ const XMLToJSONFormatterPage = () => {
     title: 'XML to JSON Converter',
     navigationItems: [
       { name: 'Home', path: '/' },
-      { name: 'JSON Formatter', path: '/json-formatter' },
+      { name: 'More Tools', path: '/json-formatter', child: [
+        { name: 'JSON Formatter', icon: <JsonIcon />, path: '/json-formatter' },
+        { name: 'XML Formatter', icon: <XmlIcon />, path: '/xml-formatter' },
+        { name: 'XML to JSON', icon: <XmlIcon />, path: '/xmltojson-formatter' },
+        { name: 'Code Formatter', icon: <CodeIcon />, path: '/code-formatter' },
+        { name: 'Diff Checker', icon: <CompareIcon />, path: '/diff-checker' },
+    ]  },
     ],
     tabs: {
       enabled: true,
@@ -90,8 +101,8 @@ const XMLToJSONFormatterPage = () => {
 
   const footerConfig = {
     navigationItems: [
-      { name: 'Privacy Policy', path: '/privacy' },
-      { name: 'Terms of Service', path: '/terms' },
+      { name: 'Developed With ❤️', path: '/' },
+      { name: 'Happy Coding 😍', path: '/' },
     ],
   };
   
@@ -185,18 +196,34 @@ const XMLToJSONFormatterPage = () => {
   };
   
 
-//   // Parse and filter the JSON data based on the search term
-//   let parsedData;
-//   try {
-//     parsedData = JSON.parse(activeTabData.data);
-//   } catch(e) {
-//     parsedData = {"Error": e.message}; // If JSON parsing fails, set it to an empty object
-//   }
-
   const filteredData = filterJsonBySearchTerm(jsonData, activeTabData.searchTerm);
 
   return (
     <MainComponent headerConfig={headerConfig} footerConfig={footerConfig}>
+      <Helmet>
+        <title>XML to JSON Converter & Formatter | Dev.Tools</title>
+        <link rel="icon" type="image/x-icon" href='/logo192.png' />
+        <meta
+          name="description"
+          content="Easily convert XML to JSON with our free online XML to JSON Converter. Validate and prettify XML data to JSON format for seamless data transformation."
+        />
+        <meta
+          name="keywords"
+          content="XML to JSON Converter, XML to JSON Formatter, Free XML to JSON Tool, Online XML Converter, JSON Formatter, Prettify JSON"
+        />
+        <meta name="author" content="Dev.Tools" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta property="og:title" content="XML to JSON Converter & Formatter | Dev.Tools" />
+        <meta
+          property="og:description"
+          content="Simplify your XML to JSON conversion tasks with our free online tool. Validate, format, and transform XML data to JSON effortlessly."
+        />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://yourwebsite.com/xmltojson-formatter" />
+        <meta property="og:image" content="https://yourwebsite.com/images/xml-to-json-preview.png" />
+        <meta property="og:locale" content="en_US" />
+        <meta property="og:site_name" content="Dev.Tools" />
+      </Helmet>
       <FormatterContainer
         config={jsonConfig}
         data={activeTabData.data}

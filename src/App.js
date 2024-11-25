@@ -6,7 +6,9 @@ import JSONFormatterPage from './formatters/JSONFormatter';
 import XMLFormatterPage from './formatters/XMLFormatter'
 import XMLtoJSONFormatterPage from './formatters/XMLtoJSONFormatter'
 import CodeFormatter from './formatters/CodeFormatter'
+import DiffChecker from './formatters/DiffChecker'
 import { ThemeProvider } from './mainComponents/ThemeContext';
+
 
 
 function App() {
@@ -20,6 +22,10 @@ function App() {
             <Route path="/xml-formatter" element={<XMLFormatterPage />} />
             <Route path="/xmltojson-formatter" element={<XMLtoJSONFormatterPage />} />
             <Route path="/code-formatter" element={<CodeFormatter />} />
+            <Route path="/code-formatter/:language" element={<CodeFormatter />} />
+            <Route path="/code-compare" element={<DiffChecker />} />
+            <Route path="/text-compare" element={<DiffChecker />} />
+            <Route path="/diff-checker" element={<DiffChecker />} />
             {/* Fallback Route for unmatched paths */}
             <Route path="*" element={<div>404 Not Found</div>} />
           </Routes>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Header from './Header';
 import Footer from './Footer';
 import { useTheme } from './ThemeContext';
@@ -8,8 +8,31 @@ const MainComponent = ({ headerConfig, footerConfig, children }) => {
   const { themeStyles } = useTheme();
   const showAdGlobal = packageJson.customSettings.showAds;
 
+  useEffect(() => {
+    const loadAdScript = () => {
+      const script = document.createElement('script');
+      script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js';
+      script.async = true;
+      script.setAttribute('data-ad-consent', 'false'); // Handle consent here
+      document.body.appendChild(script);
+
+      return () => {
+        document.body.removeChild(script);
+      };
+    };
+
+    loadAdScript();
+  }, []);
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: themeStyles.backgroundColor }}>
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        minHeight: '100vh',
+        backgroundColor: themeStyles.backgroundColor,
+      }}
+    >
       <Header config={headerConfig} />
 
       <main
@@ -22,29 +45,36 @@ const MainComponent = ({ headerConfig, footerConfig, children }) => {
           alignItems: 'center',
           boxSizing: 'border-box',
           width: '100%',
-         // Adjust based on your layout requirements  maxWidth: '1200px', 
           margin: '0 auto',
         }}
       >
-        {/* Conditionally Render Ad Placeholder based on global setting */}
+        {/* Ad Section */}
         {showAdGlobal && (
           <div
             style={{
               width: '100%',
               maxWidth: '728px',
               height: '90px',
-              backgroundColor: themeStyles.borderColor,
-              color: themeStyles.fontColor,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               marginBottom: '20px',
               borderRadius: '5px',
               boxShadow: `0px 2px 4px ${themeStyles.borderColor}`,
-              boxSizing: 'border-box',
+              backgroundColor: themeStyles.backgroundColor,
+              overflow: 'hidden',
             }}
           >
-            <p style={{ margin: 0 }}>Ad Space (728x90) - Replace with Google Ad Code</p>
+            {/* Google Ad */}
+            <ins
+              className="adsbygoogle"
+              style={{ display: 'block', width: '100%', height: '100%' }}
+              data-ad-client="ca-pub-XXXXXXXXXXXXXX" // Replace with your AdSense publisher ID
+              data-ad-slot="1234567890" // Replace with your AdSense ad slot
+              data-ad-format="auto"
+              data-full-width-responsive="true"
+            ></ins>
+            <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
           </div>
         )}
 
@@ -54,7 +84,7 @@ const MainComponent = ({ headerConfig, footerConfig, children }) => {
             width: '100%',
             padding: '1em',
             display: 'flex',
-            flexDirection: 'row', // Adjusts layout based on content
+            flexDirection: 'row',
             justifyContent: 'space-between',
             gap: '1em',
           }}

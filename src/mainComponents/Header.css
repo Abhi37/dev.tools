@@ -19,3 +19,82 @@
     margin-left: auto; /* Pushes the navigation items to the right */
   }
   
+  /* Navigation */
+.header-nav {
+  margin-left: auto;
+}
+
+.header-nav-list {
+  display: flex;
+  gap: 1em;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  
+}
+
+.header-nav-item {
+  display: flex;
+  align-items: center;
+  
+}
+
+.header-nav-dropdown-trigger {
+  color: inherit;
+  
+}
+
+.header-nav-dropdown {
+  font-size: 0.875rem;
+  
+}
+
+.header-dropdown-menu {
+  width: 1800px;
+  max-height: 200px;
+  
+}
+
+.header-dropdown-item {
+  padding: 6px 12px;
+}
+
+.header-dropdown-icon {
+  min-width: 30px;
+}
+
+/* Theme Toggle */
+.header-theme-toggle {
+  color: var(--header-icon-color);
+}
+
+.header-nav-link {
+  text-decoration: none;
+  color: inherit;
+  font-size: 1rem;
+  transition: color 0.2s;
+}
+  
+
+/* Navigation */
+/* .header-nav-link {
+  text-decoration: none;
+  font-size: 1rem;
+  transition: color 0.2s;
+} */
+
+.header-nav-link.light {
+  color: var(--light-font-color); /* Use a variable for light theme font color */
+}
+
+.header-nav-link.light:hover {
+  color: var(--light-hover-color); /* Use a variable for light theme hover color */
+}
+
+.header-nav-link.dark {
+  color: var(--dark-font-color); /* Use a variable for dark theme font color */
+}
+
+.header-nav-link.dark:hover {
+  color: var(--dark-hover-color); /* Use a variable for dark theme hover color */
+}

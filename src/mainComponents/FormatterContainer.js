@@ -2,15 +2,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useTheme } from './ThemeContext';
 import CodeMirror from '@uiw/react-codemirror';
-import { EditorState, Compartment } from '@codemirror/state';
 import { EditorView, keymap, lineNumbers, highlightActiveLine } from '@codemirror/view';
-import { defaultHighlightStyle } from '@codemirror/language';
 import { javascript } from '@codemirror/lang-javascript';
 import { html } from '@codemirror/lang-html';
 import { json } from '@codemirror/lang-json';
+import { css } from '@codemirror/lang-css';
 import { xml } from '@codemirror/lang-xml';
 import { linter, lintGutter } from '@codemirror/lint';
-import { history, historyKeymap } from '@codemirror/commands';
 import ReactJsonViewer from '@uiw/react-json-view';
 import XMLViewer from 'react-xml-viewer';
 import { lightTheme } from '@uiw/react-json-view/light';
@@ -18,38 +16,8 @@ import { darkTheme } from '@uiw/react-json-view/dark';
 import Tooltip from '@mui/material/Tooltip'; // Import Material UI Tooltip
 import IconButton from '@mui/material/IconButton';
 import './FormatterContainer.css';
+import * as acorn from 'acorn';
 import packageJson from '../../package.json';
-//import eslint from 'eslint';
-
-// Compartment setup
-const languageCompartment = new Compartment();
-const indentationCompartment = new Compartment();
-
-// linterJS.js
-
-export const lintJavaScript = (text) => {
-  // Ensure `text` is a valid string
-  if (typeof text !== 'string' || !text.trim()) return [];
-
-  try {
-    // `new Function` will throw an error if `text` contains invalid JavaScript
-    new Function(text);
-    return []; // No errors
-  } catch (error) {
-    // Get the error position and return a marker for CodeMirror to display
-    const from = error.position || 0;
-    const to = from + 1;
-
-    return [
-      {
-        from,
-        to,
-        severity: 'error',
-        message: error.message,
-      },
-    ];
-  }
-};
 
 
 
@@ -63,9 +31,7 @@ const FormatterContainer = ({ config, data, onDataChange, filteredData, isOutput
   const editor = useRef(null);
   const [view, setView] = useState(null);
 
-  console.log(codeData)
 
-  // Adjust height based on ad visibility
   const boxHeight = showAdGlobal ? '68vh' : '78vh';
   //https://github.com/j3lte/react-xml-view/
 
@@ -206,69 +172,223 @@ const renderToolbar = (tools, section) => (
     }
     return editorView;
   };
-  
 
-  const lintJSON = (text) => {
-    const jsonString = getEditorContent(text); // Extract the JSON content
-  
-    if (typeof jsonString !== 'string') return []; // Ensure it’s a string
-  
-    try {
-      JSON.parse(jsonString); // Check if it’s valid JSON
-      return [];
-    } catch (error) {
-      const message = error.message;
-      const position = error.position || 0;
-  
-      let line = 0, col = 0;
-      if (position >= 0) {
-        const lines = jsonString.slice(0, position).split("\n");
-        line = lines.length - 1;
-        col = lines[lines.length - 1].length;
+
+  const lintHTML = (view) => {
+    const text = view.state.doc.toString();
+    const errors = [];
+    const lines = text.split('\n');
+    let currentPos = 0; // Tracks the current position in the document
+
+  try {
+    // Parse HTML using DOMParser to find any high-level parsing errors
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(text, 'text/html');
+    const errorNode = doc.querySelector('parsererror');
+
+    if (errorNode) {
+      // If there is a general parse error, add it to the errors array
+      errors.push({
+        from: 0,
+        to: text.length,
+        severity: 'error',
+        message: errorNode.textContent.trim(),
+      });
+    }
+
+    // Manual checks for common HTML mistakes line-by-line
+    lines.forEach((line, index) => {
+      const lineStartPos = currentPos; // Start position of the line in the document
+      const lineNum = index + 1;
+
+      // Check for unclosed <div> tags
+      if (line.includes('<div') && !line.includes('</div>') && !line.includes('/>')) {
+        errors.push({
+          from: lineStartPos + line.indexOf('<div'),
+          to: lineStartPos + line.length,
+          severity: 'error',
+          message: `Line ${lineNum}: Possible unclosed <div> tag.`,
+        });
       }
+
+      // Check for unclosed <p> tags
+      if (line.includes('<p') && !line.includes('</p>') && !line.includes('/>')) {
+        errors.push({
+          from: lineStartPos + line.indexOf('<p'),
+          to: lineStartPos + line.length,
+          severity: 'error',
+          message: `Line ${lineNum}: Possible unclosed <p> tag.`,
+        });
+      }
+
+      // Check for unclosed quotes in attributes
+      const quoteMatches = line.match(/=["'][^"']*$/); // Matches an opening quote without a closing quote
+      if (quoteMatches) {
+        errors.push({
+          from: lineStartPos + line.indexOf(quoteMatches[0]),
+          to: lineStartPos + line.length,
+          severity: 'error',
+          message: `Line ${lineNum}: Missing closing quote for attribute.`,
+        });
+      }
+
+      // Move to the next line's start position
+      currentPos += line.length + 1; // +1 for the newline character
+    });
+
+    return errors;
+  } catch (error) {
+    // Catch any unexpected errors in parsing
+    return [
+      {
+        from: 0,
+        to: Math.max(1, text.length),
+        severity: 'error',
+        message: 'Invalid HTML format',
+      },
+    ];
+  }
+  };
+  
+  
+  const lintJavaScript = (view) => {
+    const text = view.state.doc.toString();
+    try {
+      // Parse JavaScript using Acorn to detect syntax errors
+      acorn.parse(text, { ecmaVersion: 'latest' });
+      return []; // Return an empty array if no errors are found
+    } catch (error) {
+      const from = error.pos || 0; // Starting position of the error
+      const to = error.pos + 1; // Ending position of the error, at least 1 character after `from`
+      const line = error.loc.line; // Line number of the error
+      const column = error.loc.column; // Column number of the error
+  
+      console.log({
+        from,
+        to,
+        line,
+        column,
+        severity: 'error',
+        message: `Syntax Error: ${error.message}`,
+      });
   
       return [
         {
-          from: position,
-          to: position + 1,
+          from,
+          to,
           severity: 'error',
-          message: message,
+          message: `Syntax Error on line ${line}, column ${column}: ${error.message}`,
         },
       ];
     }
   };
-  const lintXML = (view) => {
-    return [];
-    const diagnostics = [];
-    const content = view.state.doc.toString();
   
+  
+  const lintJSON = (view) => {
+    const text = view.state.doc.toString();
     try {
-      // Parse XML and catch any syntax errors
-      const parser = new DOMParser();
-      const parsedDoc = parser.parseFromString(content, "application/xml");
-      const errorNode = parsedDoc.querySelector("parsererror");
+      JSON.parse(text);
+      return [];
+    } catch (error) {
+      const from = error.position || 0;
+      const to = Math.max(from + 1, text.length); // Ensure the range is non-zero
+      return [
+        {
+          from,
+          to,
+          severity: 'error',
+          message: error.message,
+        },
+      ];
+    }
+  };
   
-      if (errorNode) {
-        // If there's an error, add it to diagnostics
-        diagnostics.push({
+  const lintXML = (view) => {
+    const text = view.state.doc.toString();
+    try {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(text, 'application/xml');
+      const errorNode = doc.querySelector('parsererror');
+      if (!errorNode) return [];
+      return [
+        {
           from: 0,
-          to: content.length,
-          message: errorNode.textContent || "Invalid XML",
-          severity: "error",
+          to: Math.max(1, text.length), // Ensure the range is non-zero
+          severity: 'error',
+          message: 'Invalid XML format',
+        },
+      ];
+    } catch (error) {
+      return [
+        {
+          from: 0,
+          to: Math.max(1, text.length), // Ensure the range is non-zero
+          severity: 'error',
+          message: error.message,
+        },
+      ];
+    }
+  };
+
+const lintCSS = (view) => {
+  const code = view.state.doc.toString();
+  const diagnostics = [];
+  const selectorPattern = /^[a-zA-Z0-9\-_:#.\s,>*+~[\]=()]+$/; // Basic selector validation
+  const propertyPattern = /^[a-zA-Z-]+$/; // Valid CSS property names
+  const valuePattern = /^[a-zA-Z0-9\s%#.,()]+$/; // Basic CSS value validation
+
+  // Track current character position in the entire document
+  let currentPos = 0;
+  const lines = code.split('\n');
+
+  lines.forEach((line, lineNumber) => {
+    const trimmedLine = line.trim();
+
+    // Skip comment lines
+    if (trimmedLine.startsWith("/*") || trimmedLine.endsWith("*/")) {
+      currentPos += line.length + 1; // +1 for newline character
+      return;
+    }
+
+    // Basic check for rules with selectors and property-value pairs
+    if (trimmedLine.includes(':')) {
+      const [property, value] = trimmedLine.split(':').map(part => part.trim().replace(';', ''));
+      
+      if (property && !propertyPattern.test(property)) {
+        diagnostics.push({
+          from: currentPos,
+          to: currentPos + property.length,
+          severity: 'error',
+          message: `Invalid property name: "${property}"`,
         });
       }
-    } catch (e) {
-      // If any other error occurs, add it to diagnostics
-      diagnostics.push({
-        from: 0,
-        to: content.length,
-        message: e.message || "Invalid XML",
-        severity: "error",
-      });
+
+      if (value && !valuePattern.test(value)) {
+        diagnostics.push({
+          from: currentPos + property.length + 1, // Start after property
+          to: currentPos + property.length + 1 + value.length,
+          severity: 'error',
+          message: `Invalid value for "${property}": "${value}"`,
+        });
+      }
+    } else if (trimmedLine.includes('{') || trimmedLine.includes('}')) {
+      const selector = trimmedLine.replace('{', '').replace('}', '').trim();
+
+      if (!selectorPattern.test(selector) && selector.length > 0) {
+        diagnostics.push({
+          from: currentPos,
+          to: currentPos + selector.length,
+          severity: 'error',
+          message: `Invalid selector syntax: "${selector}"`,
+        });
+      }
     }
-  
-    return diagnostics;
-  };
+
+    currentPos += line.length + 1; // Update position (including newline character)
+  });
+  console.log(diagnostics);
+  return diagnostics;
+};
 
   const xmlToJson = (xmlString) => {
     return new Promise((resolve, reject) => {
@@ -283,37 +403,6 @@ const renderToolbar = (tools, section) => (
         }
       });
     });
-  };
-
-  const getLanguageExtension = (language) => {
-    switch (language) {
-      case 'javascript':
-        return javascript();
-      case 'html':
-        return html();
-      case 'json':
-        return json();
-      case 'xml':
-        return xml();
-      default:
-        return null;
-    }
-  };
-
-  
-  const getLinterExtension = (language) => {
-    switch (language) {
-      case 'json':
-        return linter(lintJSON);
-      case 'xml':
-        return linter(lintXML);
-      case 'javascript':
-        return linter(lintJavaScript);
-      case 'html':
-        return linter("lintHTML");
-      default:
-        return null;
-    }
   };
 
   const ViewerComponent = config.viewerComponent === 'ReactJsonViewer' ? ReactJsonViewer : XMLViewer;
@@ -378,6 +467,64 @@ const renderToolbar = (tools, section) => (
       return [1]; // Default to a single line if format is unknown
     }
   };
+
+
+  // Dynamic language extension selector
+const getLanguageExtension = (format) => {
+  if(format !== 'code'){
+    switch (format) {
+      case 'json':
+        return json();
+      case 'xml':
+        return xml();
+      case 'javascript':
+        return javascript();
+      default:
+        return json(); // Defaulting to JSON if no format is specified
+    }
+  }
+  else{
+    switch (codeData.language) {
+      case 'javascript':
+        return javascript();
+      case 'html':
+        return html();
+      case 'css':
+        return css();
+      default:
+        return json(); // Defaulting to JSON if no format is specified
+    }
+  }
+  
+};
+
+// Dynamic linter extension selector
+const getLinterExtension = (format) => {
+  const noopLinter = () => [];
+  if(format !== 'code'){
+    switch (format) {
+      case 'json':
+        return linter(lintJSON);
+      case 'xml':
+        return linter(lintXML);      
+      default:
+        return linter(noopLinter); // Defaulting to JSON linter if no format is specified
+    }
+  }
+  else{
+    switch (codeData.language) {
+      case 'javascript':
+        return linter(lintJavaScript);
+      case 'html':
+         return linter(lintHTML);
+      case 'css':
+        return linter(lintCSS);
+      default:
+        return linter(noopLinter);
+    }
+  }
+  
+};
   
 
   return (
@@ -389,37 +536,25 @@ const renderToolbar = (tools, section) => (
       <div className="formatter-box" style={{ ...boxStyle, flex: isOutputExpanded ? 0 : 1 }}>
           {renderToolbar(config.tools.input, 'input')}
           <div style={contentStyle}>
-          <EditorView
-      state={EditorState.create({
-        doc: value,
-        extensions: [
-          lineNumbers(),
-          highlightActiveLine(),
-          defaultHighlightStyle,
-          history(),
-          keymap.of(historyKeymap),
-          languageCompartment.of(getLanguageExtension(codeData.language)),
-          indentationCompartment.of(EditorState.tabSize.of(codeData.indentation)),
-          lintGutter(),
-          linter((view) => {
-            // Sample linter logic here
-            const text = view.state.doc.toString();
-            if (text.includes('error')) {
-              return [{
-                from: 0,
-                to: text.length,
-                severity: 'error',
-                message: 'This is a custom lint error'
-              }];
-            }
-            return [];
-          })
-        ].filter(Boolean)
-      })}
-      onChange={(value) => {
-        setValue(value);
-        onDataChange(value);
-      }}
+          <CodeMirror
+              className="codemirror-editor"
+              value={data}
+              height="100%"
+              extensions={[
+                getLanguageExtension(config.format),       // Language extension based on format
+                getLinterExtension(config.format),         // Linter based on format
+                lintGutter()                               // Common lint gutter
+              ]}
+              onChange={(editorView) => {
+                const content = getEditorContent(editorView);  // Extract content from editor
+                onDataChange(content);                         // Pass the content to onDataChange
+              }}
+              theme={themeStyles.fontColor === '#333' ? 'light' : 'dark'}
+              style={{
+                backgroundColor: themeStyles.backgroundColor,
+                color: themeStyles.fontColor,
+                borderRadius: '5px'
+              }}
     />
           </div>
         </div>
@@ -430,7 +565,7 @@ const renderToolbar = (tools, section) => (
         <div className="formatter-box" style={{ ...boxStyle, flex: isOutputExpanded ? 0 : 1 }}>
           {renderToolbar(config.tools.input, 'input')}
           <div style={contentStyle}>
-            <CodeMirror
+            {/* <CodeMirror
               className="codemirror-editor"
               value={data}
               height="100%"
@@ -449,7 +584,28 @@ const renderToolbar = (tools, section) => (
                 color: themeStyles.fontColor,
                 borderRadius: '5px'
               }}
-            />
+            /> */}
+
+<CodeMirror
+      className="codemirror-editor"
+      value={data}
+      height="100%"
+      extensions={[
+        getLanguageExtension(config.format),       // Language extension based on format
+        getLinterExtension(config.format),         // Linter based on format
+        lintGutter()                               // Common lint gutter
+      ]}
+      onChange={(editorView) => {
+        const content = getEditorContent(editorView);  // Extract content from editor
+        onDataChange(content);                         // Pass the content to onDataChange
+      }}
+      theme={themeStyles.fontColor === '#333' ? 'light' : 'dark'}
+      style={{
+        backgroundColor: themeStyles.backgroundColor,
+        color: themeStyles.fontColor,
+        borderRadius: '5px'
+      }}
+    />
           </div>
         </div>
       )}

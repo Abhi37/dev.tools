@@ -1,4 +1,5 @@
 {
+  "homepage": "https://Abhi37.github.io/dev.tools",
   "name": "dev-tools-app",
   "version": "0.1.0",
   "private": true,
@@ -17,16 +18,22 @@
     "@j3lte/react-xml-view": "^1.6.0",
     "@mui/icons-material": "^6.1.6",
     "@mui/material": "^6.1.6",
+    "@mui/material-next": "^6.0.0-alpha.126",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "@uiw/react-codemirror": "^4.23.6",
     "@uiw/react-json-view": "^2.0.0-alpha.30",
+    "acorn": "^8.14.0",
     "buffer": "^6.0.3",
     "crypto-browserify": "^3.12.1",
+    "js-beautify": "^1.15.1",
+    "prettier": "^3.3.3",
     "process": "^0.11.10",
     "react": "^18.3.1",
+    "react-diff-viewer-continued": "^3.4.0",
     "react-dom": "^18.3.1",
+    "react-helmet": "^6.1.0",
     "react-router-dom": "^6.27.0",
     "react-scripts": "5.0.1",
     "react-xml-viewer": "^2.0.4",
@@ -40,7 +47,9 @@
     "build": "craco build",
     "test": "craco test",
     "eject": "react-scripts eject",
-    "clean": "rimraf ./build"
+    "clean": "rimraf ./build",
+    "predeploy": "npm run build",
+  "deploy": "gh-pages -d build"
   },
   "eslintConfig": {
     "extends": [
@@ -66,6 +75,7 @@
   "devDependencies": {
     "eslint-config-react-app": "^7.0.1",
     "eslint-plugin-react": "^7.37.2",
+    "gh-pages": "^6.2.0",
     "rimraf": "^6.0.1"
   },
   "browser": {

@@ -14,7 +14,12 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { TextField, Select, MenuItem } from '@mui/material';
 import { useTheme } from '../mainComponents/ThemeContext';
 import XMLViewer from 'react-xml-viewer';
+import { Helmet } from 'react-helmet';
 import { handleXmlInput, validateXML, prettifyXML } from '../utils/XMLUtils';
+import CodeIcon from '@mui/icons-material/Code';
+import JsonIcon from '@mui/icons-material/Description'; 
+import CompareIcon from '@mui/icons-material/CompareArrows';
+import XmlIcon from '@mui/icons-material/Schema'
 
 const XMLFormatterPage = () => {
   const { theme, themeStyles } = useTheme();
@@ -109,7 +114,13 @@ const XMLFormatterPage = () => {
     title: 'XML Formatter',
     navigationItems: [
       { name: 'Home', path: '/' },
-      { name: 'XML Formatter', path: '/xml-formatter' },
+      { name: 'More Tools', path: '/xml-formatter', child: [
+        { name: 'JSON Formatter', icon: <JsonIcon />, path: '/json-formatter' },
+        { name: 'XML Formatter', icon: <XmlIcon />, path: '/xml-formatter' },
+        { name: 'XML to JSON', icon: <XmlIcon />, path: '/xmltojson-formatter' },
+        { name: 'Code Formatter', icon: <CodeIcon />, path: '/code-formatter' },
+        { name: 'Diff Checker', icon: <CompareIcon />, path: '/diff-checker' },
+    ] },
     ],
     tabs: {
       enabled: true,
@@ -124,8 +135,8 @@ const XMLFormatterPage = () => {
 
   const footerConfig = {
     navigationItems: [
-      { name: 'Privacy Policy', path: '/privacy' },
-      { name: 'Terms of Service', path: '/terms' },
+      { name: 'Developed With ❤️', path: '/' },
+      { name: 'Happy Coding 😍', path: '/' },
     ],
   };
 
@@ -308,6 +319,30 @@ const XMLFormatterPage = () => {
 
   return (
     <MainComponent headerConfig={headerConfig} footerConfig={footerConfig}>
+      <Helmet>
+        <title>Free Online XML Formatter & Validator | Dev.Tools</title>
+        <link rel="icon" type="image/x-icon" href='/logo192.png' />
+        <meta
+          name="description"
+          content="Use our free online XML Formatter to prettify, validate, and minify XML data. Simplify your XML formatting tasks with our easy-to-use tool."
+        />
+        <meta
+          name="keywords"
+          content="XML Formatter, XML Validator, Free XML Tool, Online XML Formatter, XML Prettifier, XML Beautifier"
+        />
+        <meta name="author" content="Dev.Tools" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta property="og:title" content="Free Online XML Formatter & Validator | Dev.Tools" />
+        <meta
+          property="og:description"
+          content="Simplify your XML formatting tasks with our free online XML Formatter. Validate, prettify, and minify your XML data easily."
+        />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://yourwebsite.com/xml-formatter" />
+        <meta property="og:image" content="https://yourwebsite.com/images/xml-formatter-preview.png" />
+        <meta property="og:locale" content="en_US" />
+        <meta property="og:site_name" content="Dev.Tools" />
+      </Helmet>
       <FormatterContainer
         config={xmlConfig}
         data={activeTabData.data}

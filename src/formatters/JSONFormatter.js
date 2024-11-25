@@ -14,6 +14,12 @@ import OpenInFullIcon from '@mui/icons-material/OpenInFull';
 import CloseFullscreenIcon from '@mui/icons-material/CloseFullscreen';
 import { TextField, Select, MenuItem } from '@mui/material';
 import { useTheme } from '../mainComponents/ThemeContext';
+import { Helmet } from "react-helmet";
+import CodeIcon from '@mui/icons-material/Code';
+import JsonIcon from '@mui/icons-material/Description'; 
+import CompareIcon from '@mui/icons-material/CompareArrows';
+import XmlIcon from '@mui/icons-material/Schema'
+
 
 
 
@@ -66,7 +72,13 @@ const JSONFormatterPage = () => {
     title: 'JSON Formatter',
     navigationItems: [
       { name: 'Home', path: '/' },
-      { name: 'JSON Formatter', path: '/json-formatter' },
+      { name: 'More Tools', path: '/json-formatter', child: [
+        { name: 'JSON Formatter', icon: <JsonIcon />, path: '/json-formatter' },
+        { name: 'XML Formatter', icon: <XmlIcon />, path: '/xml-formatter' },
+        { name: 'XML to JSON', icon: <XmlIcon />, path: '/xmltojson-formatter' },
+        { name: 'Code Formatter', icon: <CodeIcon />, path: '/code-formatter' },
+        { name: 'Diff Checker', icon: <CompareIcon />, path: '/diff-checker' },
+    ] },
     ],
     tabs: {
       enabled: true,
@@ -81,8 +93,8 @@ const JSONFormatterPage = () => {
 
   const footerConfig = {
     navigationItems: [
-      { name: 'Privacy Policy', path: '/privacy' },
-      { name: 'Terms of Service', path: '/terms' },
+      { name: 'Developed With ❤️', path: '/' },
+      { name: 'Happy Coding 😍', path: '/' },
     ],
   };
 
@@ -210,33 +222,6 @@ const JSONFormatterPage = () => {
     },
   };
 
-  // const filterJsonBySearchTerm = (data, term) => {
-  //   if (!term || typeof data !== 'object' || data === null || term.length < 2) return data;
-
-  //   if (Array.isArray(data)) {
-  //     return data
-  //       .map((item) => filterJsonBySearchTerm(item, term))
-  //       .filter((item) => item !== null && item !== undefined);
-  //   } else {
-  //     const filtered = {};
-  //     Object.keys(data).forEach((key) => {
-  //       if (
-  //         key.toLowerCase().includes(term.toLowerCase()) ||
-  //         (typeof data[key] === 'string' &&
-  //           data[key].toLowerCase().includes(term.toLowerCase()))
-  //       ) {
-  //         filtered[key] = data[key];
-  //       } else if (typeof data[key] === 'object') {
-  //         const child = filterJsonBySearchTerm(data[key], term);
-  //         if (child && Object.keys(child).length > 0) {
-  //           filtered[key] = child;
-  //         }
-  //       }
-  //     });
-  //     return Object.keys(filtered).length > 0 ? filtered : null;
-  //   }
-  // };
-
   const filterJsonBySearchTerm = (data, term) => {
     if (!term || typeof data !== 'object' || data === null || term.length < 2) return data;
   
@@ -284,6 +269,30 @@ const JSONFormatterPage = () => {
 
   return (
     <MainComponent headerConfig={headerConfig} footerConfig={footerConfig}>
+      <Helmet>
+        {/* Title Tag */}
+        <title>Free Online JSON Formatter & Validator | Dev.Tools</title>
+        <link rel="icon" type="image/x-icon" href='/logo192.png' />
+        
+        {/* Meta Description */}
+        <meta
+          name="description"
+          content="Use our free online JSON Formatter to prettify, validate, and minify JSON data effortlessly. Dev.Tools provides easy-to-use solutions for developers."
+        />
+
+        {/* Meta Keywords */}
+        <meta
+          name="keywords"
+          content="JSON Formatter, Validate JSON, Minify JSON, Beautify JSON Online, Free JSON Beautifier, Dev.Tools JSON Formatter"
+        />
+
+        {/* Open Graph Metadata for Social Sharing */}
+        <meta property="og:title" content="Free Online JSON Formatter & Validator | Dev.Tools" />
+        <meta property="og:description" content="Beautify, validate, and minify JSON data online for free with Dev.Tools. A must-have tool for developers." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://yourwebsite.com/json-formatter" />
+        <meta property="og:image" content="https://yourwebsite.com/assets/json-formatter-preview.png" />
+      </Helmet>
       <FormatterContainer
         config={jsonConfig}
         data={activeTabData.data}
@@ -296,184 +305,3 @@ const JSONFormatterPage = () => {
 };
 
 export default JSONFormatterPage;
-
-
-
-// import React, { useState } from 'react';
-// import FormatterContainer from '../mainComponents/FormatterContainer';
-// import MainComponent from '../mainComponents/MainComponent';
-// import MinimizeIcon from '@mui/icons-material/Minimize';
-// import FormatAlignLeftIcon from '@mui/icons-material/FormatAlignLeft';
-// import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
-// import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-// import SearchIcon from '@mui/icons-material/Search';
-// import FilterListIcon from '@mui/icons-material/FilterList';
-// import { TextField, Select, MenuItem } from '@mui/material';
-
-// const JSONFormatterPage = () => {
-//   const [data, setData] = useState('{"message": "input data here!"}');
-//   const [searchTerm, setSearchTerm] = useState('');
-//   const [filteredData, setFilteredData] = useState(null);
-//   const [selectedNode, setSelectedNode] = useState('');
-//   const [nodeOptions, setNodeOptions] = useState([]);
-
-//   const headerConfig = {
-//     title: 'JSON Formatter',
-//     navigationItems: [
-//       { name: 'Home', path: '/' },
-//       { name: 'JSON Formatter', path: '/json-formatter' },
-//     ],
-//   };
-
-//   const footerConfig = {
-//     navigationItems: [
-//       { name: 'Privacy Policy', path: '/privacy' },
-//       { name: 'Terms of Service', path: '/terms' },
-//     ],
-//   };
-
-//   // Function to safely parse JSON input
-//   const safeParseJSON = (input) => {
-//     try {
-//       return JSON.parse(input);
-//     } catch {
-//       console.warn("Invalid JSON input detected");
-//       return {}; // Return an empty object if parsing fails
-//     }
-//   };
-
-//   const handleSearch = (e) => {
-//     const term = e.target.value;
-//     setSearchTerm(term);
-//     if (term.length >= 3) {
-//       const parsedData = safeParseJSON(data);
-//       const filtered = filterJsonBySearchTerm(parsedData, term);
-//       setFilteredData(filtered);
-//     } else {
-//       setFilteredData(null);
-//     }
-//   };
-
-//   // Function to filter JSON by search term
-//   const filterJsonBySearchTerm = (data, term) => {
-//     if (!term || typeof data !== 'object' || data === null) return data;
-
-//     if (Array.isArray(data)) {
-//       return data
-//         .map((item) => filterJsonBySearchTerm(item, term))
-//         .filter((item) => item !== null && item !== undefined);
-//     } else {
-//       const filtered = {};
-//       Object.keys(data).forEach((key) => {
-//         if (
-//           key.toLowerCase().includes(term.toLowerCase()) ||
-//           (typeof data[key] === 'string' &&
-//             data[key].toLowerCase().includes(term.toLowerCase()))
-//         ) {
-//           filtered[key] = data[key];
-//         } else if (typeof data[key] === 'object') {
-//           const child = filterJsonBySearchTerm(data[key], term);
-//           if (child && Object.keys(child).length > 0) {
-//             filtered[key] = child;
-//           }
-//         }
-//       });
-//       return Object.keys(filtered).length > 0 ? filtered : null;
-//     }
-//   };
-
-//   const jsonConfig = {
-//     format: 'json',
-//     viewerComponent: 'ReactJsonViewer',
-//     tools: {
-//       input: {
-//         minify: {
-//           enabled: true,
-//           icon: <MinimizeIcon />,
-//           tooltip: 'Minify JSON',
-//           type: 'button',
-//         },
-//         prettify: {
-//           enabled: true,
-//           icon: <FormatAlignLeftIcon />,
-//           tooltip: 'Prettify JSON',
-//           type: 'button',
-//         },
-//         validate: {
-//           enabled: true,
-//           icon: <CheckCircleOutlineIcon />,
-//           tooltip: 'Validate JSON',
-//           type: 'button',
-//         },
-//       },
-//       output: {
-//         copy: {
-//           enabled: true,
-//           icon: <ContentCopyIcon />,
-//           tooltip: 'Copy JSON',
-//           type: 'button',
-//           action: () => navigator.clipboard.writeText(data).then(() => alert('Copied to clipboard!')),
-//         },
-//         search: {
-//           enabled: true,
-//           icon: <SearchIcon />,
-//           tooltip: 'Search JSON',
-//           type: 'component',
-//           component: (
-//             <TextField
-//               placeholder="Search..."
-//               size="small"
-//               value={searchTerm}
-//               onChange={handleSearch}
-//             />
-//           ),
-//         },
-//         filter: {
-//           enabled: true,
-//           icon: <FilterListIcon />,
-//           tooltip: 'Filter Node',
-//           type: 'component',
-//           component: (
-//             <Select
-//               value={selectedNode}
-//               onChange={(e) => setSelectedNode(e.target.value)}
-//               displayEmpty
-//               size="small"
-//             >
-//               <MenuItem value="">Select Node</MenuItem>
-//               {nodeOptions.map((option, index) => (
-//                 <MenuItem key={index} value={option}>
-//                   {option}
-//                 </MenuItem>
-//               ))}
-//             </Select>
-//           ),
-//         },
-//       },
-//     },
-//     onMinify: () => setData(JSON.stringify(safeParseJSON(data))),
-//     onPrettify: () => setData(JSON.stringify(safeParseJSON(data), null, 2)),
-//     onValidate: () => {
-//       try {
-//         JSON.parse(data);
-//         alert('Valid JSON');
-//       } catch {
-//         alert('Invalid JSON');
-//       }
-//     },
-//   };
-
-//   return (
-//     <MainComponent headerConfig={headerConfig} footerConfig={footerConfig}>
-//       <FormatterContainer
-//         config={jsonConfig}
-//         data={filteredData || data} // Use filteredData if it exists, otherwise fall back to original data
-//         onDataChange={(value) => setData(value)} // Directly update data with setData
-//       />
-//     </MainComponent>
-//   );
-// };
-
-// export default JSONFormatterPage;
-
-// JSONFormatterPage.js
